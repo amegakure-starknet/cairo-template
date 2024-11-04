@@ -13,7 +13,7 @@ DECLARED_CLASSHASH=$(starkli declare --watch \
     --rpc $RPC_URL \
     --keystore $KEYSTORE_SRC \
     --keystore-password $KEYSTORE_PASSWORD \
-    ./target/dev/cairo_template_HelloStarknet.contract_class.json)
+    ./target/dev/cairo_template_MyToken.contract_class.json)
 
 echo -e "$GREEN\nDeclared Classhash: $DECLARED_CLASSHASH$RESET"
 
@@ -23,6 +23,6 @@ CONTRACT_ADDRESS=$(starkli deploy --watch \
     --rpc $RPC_URL \
     --keystore $KEYSTORE_SRC \
     --keystore-password $KEYSTORE_PASSWORD \
-    $DECLARED_CLASSHASH)
+    $DECLARED_CLASSHASH 0x053c80dd051d0a515ba87dc8a3a32d56dc792e30d046ced89c6a537364e3435e)
 
 echo -e "$GREEN$\nDeployed contract address: $CONTRACT_ADDRESS$RESET"
