@@ -3,22 +3,27 @@
 
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721Component;
     use openzeppelin::token::erc721::ERC721HooksEmptyImpl;
+    use openzeppelin::token::erc721::interface::{IERC721Metadata, IERC721MetadataCamelOnly};
     use starknet::ContractAddress;
 
     use starknet::storage::{
         StoragePointerReadAccess, StoragePointerWriteAccess, StoragePathEntry, Map
     };
+    use openzeppelin::access::ownable::OwnableComponent;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
+    // ERC721Mixin can't be used since we have a custom implementation for Metadata
     #[abi(embed_v0)]
-    impl ERC721MixinImpl = ERC721Component::ERC721MixinImpl<ContractState>;
+    impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721CamelOnly = ERC721Component::ERC721CamelOnlyImpl<ContractState>;
+    
     #[abi(embed_v0)]
     impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
 
@@ -60,6 +65,34 @@ mod MyToken {
     fn constructor(ref self: ContractState, owner: ContractAddress) {
         self.erc721.initializer("JN_BEAST", "BEAST", "https://ls.jokersofneon.com/beasts/");
         self.ownable.initializer(owner);
+    }
+
+    #[abi(embed_v0)]
+    impl ERC721CustomMetadataImpl of IERC721Metadata<ContractState> {
+        fn name(self: @ContractState) -> ByteArray {
+            self.erc721.name()
+        }
+
+        fn symbol(self: @ContractState) -> ByteArray {
+            self.erc721.symbol()
+        }
+
+        fn token_uri(self: @ContractState, token_id: u256) -> ByteArray {
+            let base_uri = self.erc721._base_uri();
+            if base_uri.len() == 0 {
+                return "";
+            } else {
+                let beast_stats = self.beasts_stats.entry(token_id).read();
+                return format!("{}{}", base_uri, beast_stats.type_beast);
+            }
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl ERC721CustomMetadataCamelOnlyImpl of IERC721MetadataCamelOnly<ContractState> {
+        fn tokenURI(self: @ContractState, tokenId: u256) -> ByteArray {
+            self.token_uri(tokenId)
+        }
     }
 
     #[generate_trait]
