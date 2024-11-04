@@ -48,6 +48,7 @@ mod MyToken {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
         beasts_stats: Map<u256, BeastStats>,
+        total_supply: u256,
     }
 
     #[event]
@@ -102,12 +103,15 @@ mod MyToken {
         fn safe_mint(
             ref self: ContractState,
             recipient: ContractAddress,
-            token_id: u256,
             beast_stats: BeastStats,
-            data: Span<felt252>,
         ) {
             self.ownable.assert_only_owner();
-            self.erc721.safe_mint(recipient, token_id, data);
+
+            let total_supply = self.total_supply.read();
+            let token_id = total_supply + 1;
+            self.total_supply.write(token_id);
+
+            self.erc721.safe_mint(recipient, token_id, array![].span());
             self.beasts_stats.entry(token_id).write(BeastStats {
                 tier: beast_stats.tier,
                 level: beast_stats.level,
@@ -121,11 +125,9 @@ mod MyToken {
         fn safeMint(
             ref self: ContractState,
             recipient: ContractAddress,
-            tokenId: u256,
             beast_stats: BeastStats,
-            data: Span<felt252>,
         ) {
-            self.safe_mint(recipient, tokenId, beast_stats, data);
+            self.safe_mint(recipient, beast_stats);
         }
 
         #[external(v0)]
@@ -142,6 +144,20 @@ mod MyToken {
             tokenId: u256,
         ) -> BeastStats {
             self.beasts_stats.entry(tokenId).read()
+        }
+
+        #[external(v0)]
+        fn total_supply(
+            self: @ContractState,
+        ) -> u256 {
+            self.total_supply.read()
+        }
+
+        #[external(v0)]
+        fn totalSupply(
+            self: @ContractState,
+        ) -> u256 {
+            self.total_supply.read()
         }
     }
 }
