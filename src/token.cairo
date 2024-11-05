@@ -60,7 +60,7 @@ mod MyToken {
 
     #[constructor]
     fn constructor(ref self: ContractState, owner: ContractAddress) {
-        self.erc721.initializer("JN_BEAST", "BEAST", "https://ls.jokersofneon.com/beasts/");
+        self.erc721.initializer("Jokers of Neon: Beasts", "JN_BEASTS", "https://ls.jokersofneon.com/beasts/nft/");
         self.ownable.initializer(owner);
     }
 

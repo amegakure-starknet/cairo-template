@@ -4,25 +4,25 @@ use graffiti::json::JsonImpl;
 use cairo_template::beast_stats::BeastStats;
 
 pub fn create_metadata(beast_stats: BeastStats, token_id: u256, base_uri: ByteArray) -> ByteArray {
-    let name_beast = get_name_beast(token_id);
+    let name_beast = get_name_beast(beast_stats.beast_id.try_into().unwrap());
     let _token_id = format!("{}", token_id);
     let _beast_id = format!("{}", beast_stats.beast_id);
     let _tier = format!("{}", beast_stats.tier);
     let _level = format!("{}", beast_stats.level);
 
     let mut metadata = JsonImpl::new()
-        .add("name", name_beast.clone() + " #" + _token_id)
-        .add("description", "Beasts")
-        .add("image", base_uri + _beast_id);
+        .add("name", name_beast.clone())
+        .add("description", "Jokers of Neon x Loot Survivor exclusive beast")
+        .add("image", base_uri + _beast_id + ".png");
 
     let tier: ByteArray = JsonImpl::new().add("trait_type", "tier").add("value", _tier).build();
     let level: ByteArray = JsonImpl::new().add("trait_type", "level").add("value", _level).build();
     let name_beast_json: ByteArray = JsonImpl::new()
-        .add("trait_type", "beast_id")
+        .add("trait_type", "beast id")
         .add("value", name_beast)
         .build();
 
-    let attributes = array![tier, level, name_beast_json].span();
+    let attributes = array![name_beast_json, tier, level, ].span();
 
     let metadata = metadata.add_array("attributes", attributes).build();
 
@@ -30,7 +30,7 @@ pub fn create_metadata(beast_stats: BeastStats, token_id: u256, base_uri: ByteAr
     format!("data:application/json;utf8,{}", metadata)
 }
 
-fn get_name_beast(token_id: u256,) -> ByteArray {
+fn get_name_beast(token_id: u256) -> ByteArray {
     if token_id == 101 {
         "Fallen Jack"
     } else if token_id == 102 {
@@ -48,6 +48,6 @@ fn get_name_beast(token_id: u256,) -> ByteArray {
     } else if token_id == 108 {
         "Fallen Neon Joker"
     } else {
-        ""
+        "id error"
     }
 }
