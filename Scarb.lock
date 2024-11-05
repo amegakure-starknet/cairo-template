@@ -2,11 +2,67 @@
 version = 1
 
 [[package]]
+name = "alexandria_bytes"
+version = "0.1.0"
+source = "git+https://github.com/keep-starknet-strange/alexandria.git?rev=7c19379ab6cf0f8b48be3c5b118ffddd7e26a4d2#7c19379ab6cf0f8b48be3c5b118ffddd7e26a4d2"
+dependencies = [
+ "alexandria_data_structures",
+ "alexandria_math",
+]
+
+[[package]]
+name = "alexandria_data_structures"
+version = "0.2.0"
+source = "git+https://github.com/keep-starknet-strange/alexandria.git?rev=7c19379ab6cf0f8b48be3c5b118ffddd7e26a4d2#7c19379ab6cf0f8b48be3c5b118ffddd7e26a4d2"
+dependencies = [
+ "alexandria_encoding",
+]
+
+[[package]]
+name = "alexandria_encoding"
+version = "0.1.0"
+source = "git+https://github.com/keep-starknet-strange/alexandria.git?rev=7c19379ab6cf0f8b48be3c5b118ffddd7e26a4d2#7c19379ab6cf0f8b48be3c5b118ffddd7e26a4d2"
+dependencies = [
+ "alexandria_bytes",
+ "alexandria_math",
+ "alexandria_numeric",
+]
+
+[[package]]
+name = "alexandria_math"
+version = "0.2.1"
+source = "git+https://github.com/keep-starknet-strange/alexandria.git?rev=7c19379ab6cf0f8b48be3c5b118ffddd7e26a4d2#7c19379ab6cf0f8b48be3c5b118ffddd7e26a4d2"
+
+[[package]]
+name = "alexandria_numeric"
+version = "0.1.0"
+source = "git+https://github.com/keep-starknet-strange/alexandria.git?rev=7c19379ab6cf0f8b48be3c5b118ffddd7e26a4d2#7c19379ab6cf0f8b48be3c5b118ffddd7e26a4d2"
+dependencies = [
+ "alexandria_math",
+ "alexandria_searching",
+]
+
+[[package]]
+name = "alexandria_searching"
+version = "0.1.0"
+source = "git+https://github.com/keep-starknet-strange/alexandria.git?rev=7c19379ab6cf0f8b48be3c5b118ffddd7e26a4d2#7c19379ab6cf0f8b48be3c5b118ffddd7e26a4d2"
+dependencies = [
+ "alexandria_data_structures",
+]
+
+[[package]]
 name = "cairo_template"
 version = "0.1.0"
 dependencies = [
+ "alexandria_encoding",
+ "graffiti",
  "openzeppelin",
 ]
+
+[[package]]
+name = "graffiti"
+version = "0.1.0"
+source = "git+https://github.com/ponderingdemocritus/graffiti?rev=bc569531791dbc71c6cd8d9bc154c34eedad31fe#bc569531791dbc71c6cd8d9bc154c34eedad31fe"
 
 [[package]]
 name = "openzeppelin"
