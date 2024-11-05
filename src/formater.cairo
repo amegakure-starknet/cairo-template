@@ -10,39 +10,31 @@ pub fn create_metadata(
 ) -> ByteArray {
     
     let name_beast = get_name_beast(token_id);
-    let type_name_beast = get_type_name_beast(token_id);
-
     let _token_id = format!("{}", token_id);
-    let _type_beast = format!("{}", beast_stats.type_beast);
+    let _beast_id = format!("{}", beast_stats.beast_id);
     let _tier = format!("{}", beast_stats.tier);
     let _level = format!("{}",beast_stats.level);
-    let _health = format!("{}",beast_stats.health);
-    let _attack = format!("{}", beast_stats.attack);
 
     let mut metadata = JsonImpl::new()
-        .add("name", name_beast + " #" + _token_id)
+        .add("name", name_beast.clone() + " #" + _token_id)
         .add(
             "description",
             "Beasts"
         )
-        .add("image", base_uri + _type_beast);
+        .add("image", base_uri + _beast_id);
 
     let tier: ByteArray = JsonImpl::new().add("trait_type", "tier").add("value", _tier).build();
     let level: ByteArray = JsonImpl::new().add("trait_type", "level").add("value", _level).build();
-    let health: ByteArray = JsonImpl::new().add("trait_type", "health").add("value", _health).build();
-    let attack: ByteArray = JsonImpl::new().add("trait_type", "attack").add("value", _attack).build();
-    let type_beast: ByteArray = JsonImpl::new().add("trait_type", "type").add("value", type_name_beast).build();
+    let name_beast_json: ByteArray = JsonImpl::new().add("trait_type", "beast_id").add("value", name_beast).build();
 
     let attributes = array![
         tier,
         level,
-        health,
-        attack,
-        type_beast
+        name_beast_json
     ].span();
 
     let metadata = metadata.add_array("attributes", attributes).build();
-
+    
     // format!("data:application/json;base64,{}", bytes_base64_encode(metadata))
     format!("data:application/json;utf8,{}", metadata)
 }
@@ -70,14 +62,3 @@ fn get_name_beast(
         ""
     }
 }
-
-fn get_type_name_beast(
-    token_id: u256,
-) -> ByteArray {
-    if token_id >= 101 && token_id <= 104 {
-        "Common"
-    } else {
-        "Neon"
-    }
-}
-

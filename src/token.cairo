@@ -3,11 +3,12 @@
 
 #[starknet::contract]
 mod MyToken {
+    use core::num::traits::Zero;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721Component;
     use openzeppelin::token::erc721::ERC721HooksEmptyImpl;
     use openzeppelin::token::erc721::interface::{IERC721Metadata, IERC721MetadataCamelOnly};
-    use starknet::ContractAddress;
+    use starknet::{ContractAddress, get_caller_address};
 
     use starknet::storage::{
         StoragePointerReadAccess, StoragePointerWriteAccess, StoragePathEntry, Map
@@ -42,6 +43,7 @@ mod MyToken {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
         beasts_stats: Map<u256, BeastStats>,
+        beasts_owners: Map<(u8, u8, u8), ContractAddress>,
         total_supply: u256,
     }
 
@@ -96,19 +98,16 @@ mod MyToken {
             beast_stats: BeastStats,
         ) {
             self.ownable.assert_only_owner();
+            let beast_owner = self.beasts_owners.entry((beast_stats.tier, beast_stats.level, beast_stats.beast_id)).read();
+            assert(beast_owner.is_non_zero(), 'already minted beast');
 
             let total_supply = self.total_supply.read();
             let token_id = total_supply + 1;
             self.total_supply.write(token_id);
 
             self.erc721.safe_mint(recipient, token_id, array![].span());
-            self.beasts_stats.entry(token_id).write(BeastStats {
-                tier: beast_stats.tier,
-                level: beast_stats.level,
-                health: beast_stats.health,
-                attack: beast_stats.attack,
-                type_beast: beast_stats.type_beast
-            });
+            self.beasts_stats.entry(token_id).write(beast_stats);
+            self.beasts_owners.entry((beast_stats.tier, beast_stats.level, beast_stats.beast_id)).write(get_caller_address());
         }
 
         #[external(v0)]
@@ -118,6 +117,14 @@ mod MyToken {
             beast_stats: BeastStats,
         ) {
             self.safe_mint(recipient, beast_stats);
+        }
+
+        #[external(v0)]
+        fn get_owner(
+            self: @ContractState,
+            beast_stats: BeastStats,
+        ) -> ContractAddress {
+            self.beasts_owners.entry((beast_stats.tier, beast_stats.level, beast_stats.beast_id)).read()
         }
 
         #[external(v0)]
