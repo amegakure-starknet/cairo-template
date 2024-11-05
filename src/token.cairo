@@ -27,7 +27,7 @@ mod MyToken {
     impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
     #[abi(embed_v0)]
     impl ERC721CamelOnly = ERC721Component::ERC721CamelOnlyImpl<ContractState>;
-    
+
     #[abi(embed_v0)]
     impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
 
@@ -93,12 +93,13 @@ mod MyToken {
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
         fn safe_mint(
-            ref self: ContractState,
-            recipient: ContractAddress,
-            beast_stats: BeastStats,
+            ref self: ContractState, recipient: ContractAddress, beast_stats: BeastStats,
         ) {
             self.ownable.assert_only_owner();
-            let beast_owner = self.beasts_owners.entry((beast_stats.tier, beast_stats.level, beast_stats.beast_id)).read();
+            let beast_owner = self
+                .beasts_owners
+                .entry((beast_stats.tier, beast_stats.level, beast_stats.beast_id))
+                .read();
             assert(beast_owner.is_non_zero(), 'already minted beast');
 
             let total_supply = self.total_supply.read();
@@ -107,53 +108,42 @@ mod MyToken {
 
             self.erc721.safe_mint(recipient, token_id, array![].span());
             self.beasts_stats.entry(token_id).write(beast_stats);
-            self.beasts_owners.entry((beast_stats.tier, beast_stats.level, beast_stats.beast_id)).write(get_caller_address());
+            self
+                .beasts_owners
+                .entry((beast_stats.tier, beast_stats.level, beast_stats.beast_id))
+                .write(get_caller_address());
         }
 
         #[external(v0)]
-        fn safeMint(
-            ref self: ContractState,
-            recipient: ContractAddress,
-            beast_stats: BeastStats,
-        ) {
+        fn safeMint(ref self: ContractState, recipient: ContractAddress, beast_stats: BeastStats,) {
             self.safe_mint(recipient, beast_stats);
         }
 
         #[external(v0)]
-        fn get_owner(
-            self: @ContractState,
-            beast_stats: BeastStats,
-        ) -> ContractAddress {
-            self.beasts_owners.entry((beast_stats.tier, beast_stats.level, beast_stats.beast_id)).read()
+        fn get_owner(self: @ContractState, beast_stats: BeastStats,) -> ContractAddress {
+            self
+                .beasts_owners
+                .entry((beast_stats.tier, beast_stats.level, beast_stats.beast_id))
+                .read()
         }
 
         #[external(v0)]
-        fn get_beast_stats(
-            self: @ContractState,
-            token_id: u256,
-        ) -> BeastStats {
+        fn get_beast_stats(self: @ContractState, token_id: u256,) -> BeastStats {
             self.beasts_stats.entry(token_id).read()
         }
 
         #[external(v0)]
-        fn getBeastStats(
-            self: @ContractState,
-            tokenId: u256,
-        ) -> BeastStats {
+        fn getBeastStats(self: @ContractState, tokenId: u256,) -> BeastStats {
             self.beasts_stats.entry(tokenId).read()
         }
 
         #[external(v0)]
-        fn total_supply(
-            self: @ContractState,
-        ) -> u256 {
+        fn total_supply(self: @ContractState,) -> u256 {
             self.total_supply.read()
         }
 
         #[external(v0)]
-        fn totalSupply(
-            self: @ContractState,
-        ) -> u256 {
+        fn totalSupply(self: @ContractState,) -> u256 {
             self.total_supply.read()
         }
     }
