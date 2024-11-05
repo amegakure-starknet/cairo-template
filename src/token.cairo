@@ -100,7 +100,7 @@ mod MyToken {
                 .beasts_owners
                 .entry((beast_stats.tier, beast_stats.level, beast_stats.beast_id))
                 .read();
-            assert(beast_owner.is_non_zero(), 'already minted beast');
+            assert(beast_owner.is_zero(), 'already minted beast');
 
             let total_supply = self.total_supply.read();
             let token_id = total_supply + 1;
